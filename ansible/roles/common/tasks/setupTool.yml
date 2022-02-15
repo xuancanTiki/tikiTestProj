@@ -1,0 +1,66 @@
+- name: confirm setup
+  block: 
+    - pause:
+        prompt: "------------Are you sure to running script in this host {{item}}? [yes/y]---------------"
+      register: input
+      with_items: "{{ play_hosts }}"
+
+    - name: get user ans
+      set_fact:
+        user_ans: "{{item}}"
+      with_items: "{{hostvars[play_hosts.0].input.results}}"
+      when: item.item == inventory_hostname
+
+- name: install common tools
+  block: 
+    - debug:
+        msg: "------------ Setting up---------------"
+
+    - name: Check If Docker Is Installed
+      command: docker --version
+      register: docker_valid
+      ignore_errors: yes
+
+    - name: Debug Docker Output
+      debug:
+        var: docker_valid
+
+    - name: Install Docker pre-requisites
+      yum:
+        name: docker
+        state: latest
+      when: docker_valid.failed
+
+    - name: create user if not exist
+      ansible.builtin.user:
+        name: "{{item.username}}"
+        password: "{{item.passwd}}"
+        comment: create user "{{item.username}}"
+      with_items: "{{list_user}}"
+      ignore_errors: yes
+
+    - name: append umask for each user created
+      lineinfile:
+        dest: /home/{{item.username}}/.bashrc
+        state: present
+        regexp: '^umask'
+        line: 'umask 027'
+      with_items: "{{list_user}}"
+
+
+    - name: append umask
+      lineinfile:
+        dest: /etc/security/limits.conf
+        state: present
+        regexp: '^{{item.username}}'
+        line: '{{item.username}} - nofile 65535\n{{item.username}} - nproc 8192'
+      with_items: "{{list_user}}"
+
+
+  when: user_ans.user_input == "y" or user_ans.user_input == "yes"
+  become: true
+  become_user: root
+  become_method: sudo
+  ignore_errors: yes
+  tags:
+    - setup

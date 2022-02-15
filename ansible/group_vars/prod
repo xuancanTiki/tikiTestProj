@@ -1,0 +1,10 @@
+list_user:
+ - user01:
+   username: "monitor"
+   passwd: "123456a@"
+ - user02:
+   username: "test1"
+   passwd: "123456a@"
+ - user03:
+   username: "test2"
+   passwd: "123456a@"

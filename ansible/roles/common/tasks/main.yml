@@ -1,0 +1,4 @@
+---
+# tasks file for common
+- name: Include task list for checking common tools installed
+  import_tasks: setupTool.yml
