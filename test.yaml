@@ -1,0 +1,32 @@
+- name: Ensure docker deamon is running
+  service:
+    name: docker
+    state: started
+
+- name: tuning and optimizing linux core system
+  block:
+
+  - debug:
+      msg: "-----Tuning and optimizing linux core system, Start running----"
+
+
+  - name: Writing new kernel config to /etc/sysctl.conf
+    lineinfile:
+      dest: /etc/sysctl.conf
+      state: present
+      regexp: '^{{item.name}}'
+      line: '{{item.name}}={{item.value}}'
+    with_items: '{{tuning_param_list}}'
+
+  
+  - name: Set {{item}} to {{swappines_optimal_number}}
+    shell: echo {{swappines_optimal_number}} > /proc/sys/vm/swappiness
+    when: swappiness.stdout != "{{swappines_optimal_number}}"
+    with_items: "{{param_tuning}}"
+
+  become: true
+  become_user: root
+  become_method: su
+  tags:
+    - tunning
+ 
