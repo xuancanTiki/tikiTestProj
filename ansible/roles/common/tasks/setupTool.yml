@@ -48,12 +48,20 @@
       with_items: "{{list_user}}"
 
 
-    - name: append umask
+    - name: append umask open file
       lineinfile:
         dest: /etc/security/limits.conf
         state: present
         regexp: '^{{item.username}}'
-        line: '{{item.username}} - nofile 65535\n{{item.username}} - nproc 8192'
+        line: '{{item.username}} - nofile 65535'
+      with_items: "{{list_user}}"
+
+    - name: append umask max process
+      lineinfile:
+        dest: /etc/security/limits.conf
+        state: present
+        regexp: '^{{item.username}}'
+        line: '{{item.username}} - nproc 8192'
       with_items: "{{list_user}}"
 
 

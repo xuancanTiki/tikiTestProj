@@ -1,4 +1,4 @@
 [prod]
-34.125.158.12
+PROD01 ansible_ssh_host=34.125.158.12
 [prod:vars]
 ansible_user=sa_101227559170899494914

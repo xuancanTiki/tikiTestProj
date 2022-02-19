@@ -18,15 +18,13 @@
       line: '{{item.name}}={{item.value}}'
     with_items: '{{tuning_param_list}}'
 
-  
-  - name: Set {{item}} to {{swappines_optimal_number}}
-    shell: echo {{swappines_optimal_number}} > /proc/sys/vm/swappiness
-    when: swappiness.stdout != "{{swappines_optimal_number}}"
-    with_items: "{{param_tuning}}"
+ 
+  - name: Reload sysctl
+    shell: sysctl --system 
 
   become: true
   become_user: root
-  become_method: su
+  become_method: sudo
   tags:
-    - tunning
+    - tuningSystem
  
